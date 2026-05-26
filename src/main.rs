@@ -24,6 +24,7 @@ fn main() {
         "list" => list_todos(),
         "done" => mark_done(args),
         "delete" => delete_todo(args),
+        "purge" => purge_todos(args),
         _ => println!("Unknown command: {}", args[0]),
     }
 }
@@ -49,6 +50,9 @@ fn add_todo(args: Vec<String>) {
 }
 fn list_todos(){
     let todos = load_todos();
+    if todos.len() == 0 {
+        println!("No todos found, relax! :)");
+    }
     for todo in todos {
         println!("[{}] {}: {}", if todo.done { "x" } else { " " }, todo.id, todo.text);
     }
@@ -82,13 +86,10 @@ fn delete_todo(args: Vec<String>){
         .parse::<usize>()
         .expect("Please provide a valid todo id");
     let mut todos = load_todos();
-    for todo in &mut todos {
-        if todo.id == id {
-            todos.remove(id - 1); //TODO: len is not the same as id, this can cause issues if we delete items in the middle
-            save_todos(&todos);
-            println!("Deleted todo {}", id);
-            return;
-        }
+    if let Some(pos) = todos.iter().position(|todo| todo.id == id) {
+        todos.remove(pos);
+        save_todos(&todos);
+        println!("Deleted todo {}", id);
     }
 }
 
@@ -102,4 +103,16 @@ fn load_todos() -> Vec<Todo> {
         Ok(data) => serde_json::from_str(&data).unwrap_or_else(|_| vec![]),
         Err(_) => vec![],
     }
+}
+
+fn purge_todos(args: Vec<String>) {
+    if args.len() < 2 {
+        println!("Usage: todo purge");
+        return;
+    }
+
+    let mut todos = load_todos();
+    todos.retain(|todo| !todo.done);
+    save_todos(&todos);
+    println!("Purged completed todos");
 }
