@@ -9,7 +9,7 @@ I have the following functions:
 - todo_app purge
 
 ## Demo image
-![alt text](Todo/todo_app/Demo.png)
+![Image](Demo.png)
 
 ## AI
 I wrote this CLI tool myself and only used the ai overview from google sometimes when I searched for documentation.
